@@ -1,0 +1,46 @@
+require('cypress-xpath');
+require('cypress-iframe');
+
+describe('LaunchApplication', () => {
+  it('Do check out!', () => {
+
+    Cypress.on('uncaught:exception', (err, runnable) => {
+      // returning false here prevents Cypress from
+      // failing the test
+      return false
+    })
+    cy.clearCookies()
+    cy.clearLocalStorage()
+
+    cy.visit('https://dk.pandora.net/da/smykker/charms/?pmin=0%2C00&pmax=250%2C00');
+    cy.iframe('iframe[id^="pop-frame"]').find('a[class="call"]').click()
+
+    cy.get('a[class="thumb-link js-producttile-main-image"]').first().click()
+    cy.get('.addtocartbutton').click()
+    cy.wait(1000)
+    cy.get('div.Header__cta.cart-inner-wrapper').click()
+    cy.wait(3000)
+    cy.contains('GÅ TIL BETALING').click()
+    cy.get('input#dwfrm_mshipping_shippingAddress_firstName').type("FirstName")
+    cy.get('input#dwfrm_mshipping_shippingAddress_lastName').type("LastName")
+    cy.get('input#dwfrm_mshipping_shippingAddress_address1').type('Kildevej 10')
+    cy.get('input#dwfrm_mshipping_shippingAddress_address2').type('st th')
+    cy.get('input#dwfrm_mshipping_shippingAddress_city').type('Glostrup')
+    cy.get('input#dwfrm_mshipping_shippingAddress_postal').type('2600')
+    cy.get('input#dwfrm_mshipping_shippingAddress_email').type('ak@before.com')
+    cy.get('input#dwfrm_mshipping_shippingAddress_phone').type('71526818')
+    //cy.get('.btn-checkout Button Button--dark apply-button-address').click
+    cy.contains('Fortsæt').click()
+    cy.wait(5000)
+    cy.xpath('//form[@id="form-delivery"]//span[contains(text(),"Fortsæt")]').click()
+
+    cy.wait(6000)
+    cy.xpath('//form[@id="form-payment"]//input[@id="dwfrm_mpayment_paymentMethods_creditCard_number"]').click().type('4111111111111111')
+    
+    cy.get('input#dwfrm_mpayment_paymentMethods_creditCard_owner').type('Test Test')
+    cy.get('input#expiration-date').type('1221')
+    cy.get('input#dwfrm_mpayment_paymentMethods_creditCard_cvn').type('737')
+    cy.contains('Tjek din ordre').click
+    cy.contains('BETAL NU').should('exist');
+  })
+})
